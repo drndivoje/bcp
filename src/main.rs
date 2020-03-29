@@ -27,6 +27,11 @@ fn main() {
                 .short("i")
                 .help("the path to the folder to be backed up")
                 .required(true)
+                .takes_value(true))
+            .arg(Arg::with_name("output")
+                .short("o")
+                .help("the path where data will be backed up")
+                .required(true)
                 .takes_value(true)))
         .get_matches();
 
@@ -35,6 +40,7 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("run") {
         let input_folder = matches.value_of("input").unwrap();
-        bcp::backup(input_folder)
+        let output_folder = matches.value_of("output").unwrap();
+        bcp::backup(input_folder, output_folder)
     }
 }

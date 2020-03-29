@@ -5,9 +5,9 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-pub fn backup(path: &str) {
+pub fn backup(path: &str, destination: &str) {
     if Path::new(path).exists() {
-        let backup_folder = format!("/home/drndivoje/backup-{}", chrono::offset::Local::now().to_string());
+        let backup_folder = format!("{}/backup-{}", destination, chrono::offset::Local::now().to_string());
         let _bcp_folder = fs::create_dir(backup_folder.as_str());
         match _bcp_folder {
             Ok(_bcp_folder) => {
