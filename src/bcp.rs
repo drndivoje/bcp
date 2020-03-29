@@ -5,6 +5,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
+use serde::{Deserialize, Serialize};
+
 pub fn backup(path: &str, destination: &str) {
     if Path::new(path).exists() {
         let backup_folder = format!("{}/backup-{}", destination, chrono::offset::Local::now().to_string());
@@ -15,12 +17,11 @@ pub fn backup(path: &str, destination: &str) {
                 match copy(Path::new(path), Path::new(backup_folder.as_str())) {
                     Ok(_result) => {
                         _result.save(backup_folder.as_str()).expect("failed to save bcp.info file");
-                    },
+                    }
                     Err(_e) => {
                         println!("Backup failed. Failed to create backup folder.")
                     }
                 }
-
             }
             Err(_e) => {
                 println!("Backup failed. Failed to create backup folder.")
@@ -31,17 +32,21 @@ pub fn backup(path: &str, destination: &str) {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct BackupStatistic {
     duration_ms: u128,
     files_count: i32,
-    start_time: Instant,
+    start_time: u128,
 }
 
 impl BackupStatistic {
-    fn save(&self, path:&str) -> std::io::Result<()> {
+    fn save(&self, path: &str) -> std::io::Result<()> {
         let mut file = fs::File::create(format!("{}/bcp.info", path))?;
-        file.write_all( format!("{:?}", self).as_bytes())?;
+        let s = match serde_yaml::to_string(&self) {
+            Ok(_r) => _r,
+            Err(e) => e.to_string(),
+        };
+        file.write_all(s.as_bytes())?;
         Ok(())
     }
     fn file_count(&mut self) {
@@ -49,13 +54,13 @@ impl BackupStatistic {
     }
 
     fn new() -> BackupStatistic {
-        BackupStatistic{duration_ms: 0, files_count:0, start_time: Instant::now()}
+        let start_time = Instant::now().elapsed().as_millis();
+        BackupStatistic { duration_ms: 0, files_count: 0, start_time }
     }
 
     fn stop(&mut self) {
-        self.duration_ms = self.start_time.elapsed().as_millis();
+        self.duration_ms = Instant::now().elapsed().as_millis() - self.start_time;
     }
-
 }
 
 
