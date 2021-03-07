@@ -28,7 +28,6 @@ fn backup_test() {
     assert_eq!(true, archive_path.starts_with("./testOutput/backup-"));
     
     clean_test_dirs(input);
-    
     clean_test_dirs(output);
 
 }

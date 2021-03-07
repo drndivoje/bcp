@@ -28,16 +28,15 @@ impl Backup {
     pub fn start(&self) -> Result<BackupResult> {
         let start_time_ms = get_epoch_ms();
         let tar_gz = &self.create_archive()?;
-        let enc = GzEncoder::new(tar_gz, Compression::default());
+        let enc = GzEncoder::new(tar_gz, Compression::fast());
         let mut tar = tar::Builder::new(enc);
         match tar.append_dir_all("backup", &self.input) {
             Ok(_) => {
                 tar.finish()?;
-                let bcp_stats = BackupResult {
+                return Ok(BackupResult {
                     duration_ms: get_epoch_ms() - start_time_ms,
                     start_time: start_time_ms
-                };
-                return Ok(bcp_stats);
+                });
             }
             Err(_e) => {
                 return Err(Error::new(
