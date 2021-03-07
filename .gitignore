@@ -10,5 +10,4 @@ Cargo.lock
 **/*.rs.bk
 
 
-/.idea/
-/bcp.iml
+/.vscode/
